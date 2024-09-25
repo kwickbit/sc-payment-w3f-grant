@@ -11,10 +11,21 @@
   "license": "ISC",
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.2",
+    "@paraspell/sdk": "^5.10.0",
+    "@polkadot/api": "13.2.1",
+    "@polkadot/keyring": "13.1.1",
+    "@polkadot/types": "13.2.1",
+    "@polkadot/util": "13.1.1",
+    "@polkadot/util-crypto": "13.1.1",
+    "@substrate/asset-transfer-api": "^0.3.1",
     "dotenv": "^16.4.5",
-    "hardhat": "^2.22.9"
+    "ethers": "^6.13.2",
+    "hardhat": "^2.22.9",
+    "typescript": "^5.0.4",
+    "web3": "^4.12.1"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0"
+    "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
+    "ts-node": "^10.9.2"
   }
 }
