@@ -27,6 +27,7 @@ This project explores the feasibility of using scripts and smart contracts to fa
 
 - **scripts/**: Contains TypeScript scripts that handle asset transfers between Moonbeam and the relay chain.
     - 'transfer_from_moonbeam_to_relay.ts': A script to transfer assets from Moonbeam to the relay chain.
+    - 'transfer_from_relay_to_moonbeam.ts': A script to transfer assets from the relay chain to Moonbeam.
 
 - **contracts/**: Contains Solidity contracts for handling payments.
     - 'PaymentContract.sol': A Solidity contract deployed on Moonbeam that manages payments with unique 'paymentId's and emits events.
@@ -88,7 +89,12 @@ To transfer assets from the relay chain to Moonbeam:
 node scripts/transfer_from_relay_to_moonbeam.ts --network testnet --foreign-asset <foreign_asset_id> --amount <amount> --sender-sk <your_sender_private_key> --dest-mnemonic <your_destination_mnemonic>
 ```
 
-The arguments are similar to those in the Moonbeam-to-Relay script.
+- **network** ('-n') - The network to use (testnet, main, kusama). Default: 'testnet'.
+- **foreign-asset** ('-f') - The foreign asset ID (default: network-specific default).
+- **amount** ('-a') - The amount to transfer (default: '20000000000').
+- **dest-sk** - Destination's Ethereum private key.
+- **sender-mnemonic** - Sender's Polkadot account mnemonic.
+
 
 ### 3. Smart Contract Deployment and Payment
 

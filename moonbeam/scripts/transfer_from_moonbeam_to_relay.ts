@@ -28,9 +28,9 @@ const NETWORKS: Record<string, string> = {
 
 // Define default foreign asset IDs for each network
 const DEFAULT_FOREIGN_ASSETS: Record<string, string> = {
-    testnet: '42259045809535163221576417993425387648', // Replace with actual testnet ID if different
-    main: '32259045809535163221576417993425387648',    // Replace with the main network ID
-    kusama: '22259045809535163221576417993425387648',  // Replace with the Kusama network ID
+    testnet: '42259045809535163221576417993425387648',
+    main: '32259045809535163221576417993425387648',
+    kusama: '22259045809535163221576417993425387648',
 };
 
 
