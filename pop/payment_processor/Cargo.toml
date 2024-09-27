@@ -1,0 +1,25 @@
+[package]
+name = "payment_processor"
+version = "0.1.0"
+authors = ["[your_name] <[your_email]>"]
+edition = "2021"
+
+[dependencies]
+ink = {git = "https://github.com/use-ink/ink", branch = "xcm", default-features = false }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
+sp-arithmetic = { version = "26.0.0", default-features = false } # Substrate arithmetic utilities
+
+[dev-dependencies]
+ink_e2e = { version = "5.0.0" }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = []
+std = [
+    "ink/std",
+]
+ink-as-dependency = []
+e2e-tests = []
