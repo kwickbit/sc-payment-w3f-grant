@@ -1,0 +1,6 @@
+[submodule "KBPaymentProcessor/lib/forge-std"]
+	path = KBPaymentProcessor/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "KBPaymentProcessor/lib/openzeppelin-contracts"]
+	path = KBPaymentProcessor/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
