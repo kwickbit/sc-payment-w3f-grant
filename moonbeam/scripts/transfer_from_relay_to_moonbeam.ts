@@ -49,7 +49,7 @@ async function transferFromRelayToMoonbeam({
                                                destPrivateKey = process.env.PRIVATE_KEY as string,
                                                amount = '20000000000',
                                                destinationParaId = 1000,
-                                               foreignAsset,
+                                               foreignAsset: "32259045809535163221576417993425387648",
                                                network = 'testnet',
                                            }: {
     senderMnemonic: string;
@@ -59,7 +59,9 @@ async function transferFromRelayToMoonbeam({
     foreignAsset: string;
     network: string;
 }) {
-    // Wait for WASM crypto to be initialized
+    // Wait for WASM crypto to be initialize
+    console.time("Execution Time");
+
     await cryptoWaitReady();
 
     // Validate network
@@ -156,6 +158,7 @@ async function transferFromRelayToMoonbeam({
 
     // Close connection after completion
     await relayApi.disconnect();
+    console.timeEnd("Execution Time");
 }
 
 // Extracting arguments from the CLI and calling the transfer function

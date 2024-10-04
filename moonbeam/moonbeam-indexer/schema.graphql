@@ -1,0 +1,9 @@
+type ERC20PaymentReceived @entity {
+    id: ID!
+    token: String!
+    from: String!
+    amount: BigInt!
+    paymentId: String!
+    merchant: String!
+    royaltyAmount: BigInt!
+}

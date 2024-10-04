@@ -59,6 +59,8 @@ async function transferFromMoonbeamToRelay({
         senderPrivateKey: string;
         destMnemonic: string;
     }) {
+    console.time("Execution Time");
+
     // Ensure WASM crypto initialization
     await cryptoWaitReady();
 
@@ -119,7 +121,8 @@ async function transferFromMoonbeamToRelay({
     });
 
     // Close the connection after transaction
-    moonbaseApi.disconnect();
+    await moonbaseApi.disconnect();
+    console.timeEnd("Execution Time");
 }
 
 // Extracting arguments from the CLI and calling the transfer function

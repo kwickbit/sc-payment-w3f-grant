@@ -7,9 +7,11 @@ This repository contains a benchmark of various smart contract solutions within 
 ## Smart Contract Platforms Benchmarked
 
 ### 1. **Moonbeam**
+
 Moonbeam is a smart contract platform within the Polkadot ecosystem that provides full Ethereum compatibility. It is a parachain that enables developers to deploy existing Ethereum-based smart contracts with minimal changes.
 
 **Key Features of Moonbeam:**
+
 - **Full Ethereum Compatibility**: Moonbeam supports Solidity smart contracts, allowing Ethereum projects to be ported easily.
 - **Integration with Polkadot**: As a Polkadot parachain, Moonbeam benefits from Polkadot's shared security and cross-chain interoperability.
 - **Ethereum Tools**: Developers can use popular Ethereum tools like Remix, Truffle, and Hardhat.
@@ -21,6 +23,7 @@ For detailed information about the Moonbeam implementation, benchmarks, and usag
 ## Purpose of the Benchmark
 
 The goal of this repository is to evaluate and compare the performance of different smart contract platforms in the Polkadot ecosystem. We look into:
+
 - **Execution speed**
 - **Gas costs**
 - **Scalability**
@@ -30,20 +33,46 @@ The goal of this repository is to evaluate and compare the performance of differ
 
 ## How to Use This Repository
 
-Each folder in this repository corresponds to a different smart contract platform. Inside each folder, you will find:
-- A `README.md` file that explains the setup and benchmarks for that specific platform.
-- Scripts for deploying and testing smart contracts.
-- Metrics for comparing the performance of smart contracts.
+### Prerequisites
+- Subsquid
+- Node
+- Docker
 
-To navigate to a specific platform’s benchmark, go to the corresponding folder:
+#### Install Subsquid CLI
+```
+npm i -g @subsquid/cli@latest
+```
 
-- [Moonbeam](moonbeam/README.md)
+#### Start Indexer Service
+```
+npm run indexer 
+```
+#### Listen to Indexer
+```
+npm run listen
+```
+#### Sign and Submit Payment
+```
+npm run sign
+```
 
+
+## Benchmarks
+### Moonbeam 
+
+- Transferring from Relay Chain To Moonbase: TBD
+
+- Transferring from Moonbase to Relay Chain: TBD
+
+- Approving XC-20 Transfer: ~25s
+
+- Submitting Payment: ~25s
+
+- Indexer: ~1-3s
 
 ## Contributing
 
 If you would like to contribute to this project or add additional benchmarks, feel free to open a pull request. Make sure to follow the repository's contribution guidelines.
-
 
 ## License
 
