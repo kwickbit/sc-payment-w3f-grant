@@ -9,6 +9,8 @@ ink = {git = "https://github.com/use-ink/ink", branch = "xcm", default-features 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 sp-arithmetic = { version = "26.0.0", default-features = false } # Substrate arithmetic utilities
+sp-runtime = { version = "39.0.1", default-features = false }
+
 
 [dev-dependencies]
 ink_e2e = { version = "5.0.0" }
@@ -20,6 +22,7 @@ path = "lib.rs"
 default = []
 std = [
     "ink/std",
+    "sp-runtime/std"
 ]
 ink-as-dependency = []
 e2e-tests = []
