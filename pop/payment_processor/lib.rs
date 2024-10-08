@@ -1,11 +1,14 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+mod xcm;
+const ASSET_ID: u32 = 27;
 
 
 #[ink::contract]
 mod payment_processor {
-
-    use ink::env::Error as EnvError;
+    use crate::xcm::{AssetsCall, RuntimeCall};
+    use sp_runtime::MultiAddress;
+    use ink::env::{Error as EnvError};
     use ink::storage::Mapping;
     use ink::prelude::vec::Vec;
     use ink::xcm::prelude::*;
@@ -16,6 +19,7 @@ mod payment_processor {
         Blake2x256,
     };
     use scale::{Compact, Encode};
+    use crate::ASSET_ID;
 
     #[derive(Debug, PartialEq, Eq)]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
@@ -55,7 +59,7 @@ mod payment_processor {
 
     impl PaymentProcessor {
 
-        fn convert_to_hash(family: &str, para_id: u32) -> [u8; 32] {
+        fn convert_to_hash(family: &str, para_id: u32, account_id: AccountId) -> [u8; 32] {
             let acc_type = "AccountId32";
             let acc_type_len = (acc_type.len() as u32).saturating_add(32u32);
 
@@ -65,7 +69,7 @@ mod payment_processor {
             input.extend(Compact(para_id).encode());
             input.extend(Compact(acc_type_len).encode());
             input.extend(acc_type.as_bytes().to_vec());
-            input.extend(Self::env().account_id().0);
+            input.extend(account_id.0);
 
             let mut output = <Blake2x256 as HashOutput>::Type::default(); // 256-bit buffer
             hash_bytes::<Blake2x256>(input.as_slice(), &mut output);
@@ -84,15 +88,29 @@ mod payment_processor {
         }
 
         fn get_ah_address() -> [u8; 32] {
-            Self::convert_to_hash("SiblingChain", 4001)
+            Self::convert_to_hash("SiblingChain", 4001, Self::env().account_id())
         }
 
         #[ink(message)]
-        pub fn pay(&mut self, encoded_extrinsic: Vec<u8>, fee_max: u128, ref_time: u64, proof_size: u64) -> Result<XcmHash, RuntimeError> {
+        pub fn pay(
+            &mut self,
+            amount: u128,
+            fee_max: u128,
+            ref_time: u64,
+            proof_size: u64
+        ) -> Result<XcmHash, RuntimeError> {
             let ah = Junctions::from([Parachain(1000)]);
             let destination: Location = Location { parents: 1, interior: ah};
             let asset: Asset = (Location::parent(), fee_max).into();
-            let refund_location: Location = AccountId32{network: None, id: Self::get_ah_address()}.into();
+            let sc_ah_address = Self::get_ah_address();
+            let sc_location: Location = AccountId32{network: None, id: sc_ah_address}.into();
+
+            let transfer_approved = RuntimeCall::Assets(AssetsCall::TransferApproved{
+                id: ASSET_ID,
+                owner: MultiAddress::<AccountId, ()>::Id(self.env().caller()),
+                destination: MultiAddress::<AccountId, ()>::Id(AccountId::from(sc_ah_address)),
+                amount
+            });
 
             let message: Xcm<()> = Xcm::builder()
                 .withdraw_asset(asset.clone().into())
@@ -100,10 +118,10 @@ mod payment_processor {
                 .transact(
                     OriginKind::SovereignAccount,
                     Weight::from_parts(ref_time, proof_size),
-                    encoded_extrinsic.into(),
+                    transfer_approved.encode().into(),
                 )
                 .refund_surplus()
-                .deposit_asset(Wild(WildAsset::All), refund_location)
+                .deposit_asset(Wild(WildAsset::All), sc_location)
                 .build();
 
             let hash = self.env().xcm_send(
