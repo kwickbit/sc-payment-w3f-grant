@@ -2,5 +2,5 @@
 cd moonbeam-indexer
 npm i
 docker-compose up -d || true
-sqd run .
+sqd run . 
 wait

@@ -22,6 +22,7 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}),
                 if (log.topics[0] == KBPaymentProcessorABI.events.ERC20PaymentReceived.topic && log.address.toLowerCase() == PAYMENT_PROCESSOR_ADDRESS.toLowerCase()) {
                     // process data
                     let event = getKBPaymentData(log)
+                    console.log("found event")
                     events.push(event)
                 }
             }
@@ -30,6 +31,7 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}),
         let payments: ERC20PaymentReceived [] = events.map(a => new ERC20PaymentReceived({
             ...a,
             id: a.paymentId,
+            timestamp: new Date()
         }))
 
         await ctx.store.save(payments)
