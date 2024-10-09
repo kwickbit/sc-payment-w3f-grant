@@ -24,6 +24,7 @@ export const processor = new EvmBatchProcessor()
         rateLimit: 10
     })
     .setFinalityConfirmation(75)
+    
     .setFields({
         transaction: {
             from: true,
@@ -32,7 +33,7 @@ export const processor = new EvmBatchProcessor()
         },
     })
     .setBlockRange({
-        from: 0,
+        from: Number(process.env.BLOCK_START_HEIGHT) ?? 8972162
     })
     .addLog({
         address: [PAYMENT_PROCESSOR_ADDRESS],
