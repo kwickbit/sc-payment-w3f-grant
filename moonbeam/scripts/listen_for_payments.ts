@@ -1,17 +1,10 @@
-import { request, gql } from 'graphql-request';
 import { createClient } from 'graphql-ws';
-import { SubscriptionClient } from 'subscriptions-transport-ws';
 import WebSocket from 'ws'; // Import the WebSocket polyfill
-
-const wsEndpoint = 'ws://localhost:4350/graphql'; // Change this to your actual Subsquid GraphQL endpoint
-
-const port = process.env.GQL_PORT || 4350
-const host = process.env.GQL_HOST || 'localhost'
-const proto = process.env.GQL_PROTO || 'ws'
-
+const wsEndpoint = process.env.WS_ENDPOINT ?? 'ws://0b342a1b-0dbc-421a-afd4-cf9a847a479b.squids.live/kb-payment-sqd/v/v1/graphql'; // Change this to your actual Subsquid GraphQL endpoint
+``
 const client = createClient({
   webSocketImpl: WebSocket,
-  url: `${proto}://${host}:${port}/graphql`,
+  url: wsEndpoint,
 });
 
 client.subscribe(
