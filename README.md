@@ -34,40 +34,61 @@ The goal of this repository is to evaluate and compare the performance of differ
 ## How to Use This Repository
 
 ### Prerequisites
+
 - Subsquid
 - Node
 - Docker
 
-#### Install Subsquid CLI
+### Install Subsquid CLI
+
 ```
 npm i -g @subsquid/cli@latest
 ```
 
-#### Start Indexer Service
+## Running Moonbeam Demo
+
+```
+cd moonbeam
+```
+
+### Start Local Indexer
+
+To prevent the indexer from starting at genesis, visit https://moonbase.moonscan.io/ to get the latest block, then put it in `BLOCK_START_HEIGHT` envvar under `.env` under ``/moonbeam-indexer``. Return to `/moonbeam` directory then in each separate terminal run the following commands:
+
 ```
 npm run indexer 
 ```
-#### Listen to Indexer
+
+You may also use the deployed endpoint instead: `ws://0b342a1b-0dbc-421a-afd4-cf9a847a479b.squids.live/kb-payment-sqd/v/v1/graphql`
+
+### Listen to Indexer
+
+To subscribe to new **erc_20_payment_received** events, specify `WS_ENDPOINT` in .env to either your local  or the default deployed endpoint. Then run:
+
 ```
 npm run listen
 ```
-#### Sign and Submit Payment
+
+### Sign and Submit Payment
+
+To submit a payment run
+
 ```
 npm run sign
 ```
 
-
 ## Benchmarks
-### Moonbeam 
+
+### Moonbeam
+
+On Moonbeam mainnet avg gas cost: 125 gwei
 
 - Transferring from Relay Chain To Moonbase: TBD
-
 - Transferring from Moonbase to Relay Chain: TBD
-
-- Approving XC-20 Transfer: ~25s
-
-- Submitting Payment: ~25s
-
+- Approving XC-20 Transfer: ~25s (gas / weight: 130,304 units) ~
+  - 130,304 units * 125 gwei = 16288000 gwei = 0.016288 $GLMR
+- Submitting Payment: ~25s (gas / weight: 343,830 units) ~
+  - 343,830 units * 125 gwei = 42978750 gwei = 0.0429 $GLMR
 - Indexer: ~1-3s
 
 ## Contributing

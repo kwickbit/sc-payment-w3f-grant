@@ -1,4 +1,4 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, StringColumn as StringColumn_, BigIntColumn as BigIntColumn_} from "@subsquid/typeorm-store"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, StringColumn as StringColumn_, BigIntColumn as BigIntColumn_, DateTimeColumn as DateTimeColumn_, Index as Index_} from "@subsquid/typeorm-store"
 
 @Entity_()
 export class ERC20PaymentReceived {
@@ -26,4 +26,8 @@ export class ERC20PaymentReceived {
 
     @BigIntColumn_({nullable: false})
     royaltyAmount!: bigint
+
+    @Index_()
+    @DateTimeColumn_({nullable: false})
+    timestamp!: Date
 }

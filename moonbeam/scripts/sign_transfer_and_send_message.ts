@@ -89,14 +89,18 @@ async function createAndSignPaymentRequest() {
 
   // Step 4: Approve the KBPaymentProcessor contract to spend the ERC20 token
   console.time("ERC-20 token approved for transfer.")
+  console.log("Starting token approval...")
   const approvalTx = await erc20Contract.approve(KB_PAYMENT_PROCESSOR_ADDRESS, amount);
+  console.log(`tx hash: ${approvalTx.hash}`)
   await approvalTx.wait();
   console.timeEnd("ERC-20 token approved for transfer.");
 
 
   // Step 5: Call the receiveERC20Payment function on the KBPaymentProcessor contract
   console.time("Payment completed successfully!")
+  console.log("Starting payment...")
   const paymentTx = await kbPaymentProcessor.receiveERC20Payment(ERC20_CONTRACT_ADDRESS, paymentRequest, signature);
+  console.log(`tx hash: ${paymentTx.hash}`)
   await paymentTx.wait();
   console.timeEnd("Payment completed successfully!");
   console.timeEnd("Total Execution Time");

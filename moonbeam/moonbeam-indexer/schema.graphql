@@ -6,4 +6,5 @@ type ERC20PaymentReceived @entity {
     paymentId: String!
     merchant: String!
     royaltyAmount: BigInt!
+    timestamp: DateTime! @index
 }
