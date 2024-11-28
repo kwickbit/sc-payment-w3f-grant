@@ -9,5 +9,6 @@ payment_processor/target/
 payment_processor/Cargo.lock
 
 .idea
+.vscode
 
 substrate-contracts-node

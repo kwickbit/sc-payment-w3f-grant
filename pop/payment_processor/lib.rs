@@ -6,6 +6,7 @@ const ASSET_ID: u32 = 27;
 
 #[ink::contract]
 mod payment_processor {
+    use ink::codegen::Env;
     use crate::xcm::{AssetsCall, RuntimeCall};
     use sp_runtime::MultiAddress;
     use ink::env::{Error as EnvError};
@@ -28,6 +29,7 @@ mod payment_processor {
         XcmSendFailed,
     }
 
+
     impl From<EnvError> for RuntimeError {
         fn from(e: EnvError) -> Self {
             use ink::env::ReturnErrorCode;
@@ -46,6 +48,7 @@ mod payment_processor {
     #[ink(storage)]
     pub struct PaymentProcessor {
         paid: Mapping<Vec<u8>, bool>,
+        ongoing: Mapping<Vec<u8>, bool>,
         beneficiary: AccountId,
         owner: AccountId,
         fee_perthousand: u32,
@@ -81,10 +84,23 @@ mod payment_processor {
         pub fn new() -> Self {
             Self {
                 paid: Mapping::new(),
+                ongoing: Mapping::new(),
                 beneficiary: Self::env().caller(),
                 owner: Self::env().caller(),
                 fee_perthousand: 15,
             }
+        }
+
+        #[ink(message)]
+        pub fn callback_success(&mut self, payment_id: Vec<u8>) -> Result<(), RuntimeError> {
+            // Convert payment_id to hex format and print
+            let payment_id_hex = hex::encode(&payment_id);
+            ink::env::debug_println!("callback got called with payment_id in hex: {}", payment_id_hex);
+
+            self.ongoing.insert(payment_id.clone(), &false);
+            self.paid.insert(payment_id, &true);
+
+            Ok(())
         }
 
         fn get_ah_address() -> [u8; 32] {
@@ -95,6 +111,7 @@ mod payment_processor {
         pub fn pay(
             &mut self,
             amount: u128,
+            payment_id: [u8; 32],
             fee_max: u128,
             ref_time: u64,
             proof_size: u64
@@ -115,13 +132,17 @@ mod payment_processor {
             let message: Xcm<()> = Xcm::builder()
                 .withdraw_asset(asset.clone().into())
                 .buy_execution(asset, Unlimited)
+                .set_topic(payment_id)
                 .transact(
                     OriginKind::SovereignAccount,
                     Weight::from_parts(ref_time, proof_size),
                     transfer_approved.encode().into(),
                 )
+                .set_topic(payment_id)
                 .refund_surplus()
+                .set_topic(payment_id)
                 .deposit_asset(Wild(WildAsset::All), sc_location)
+                .set_topic(payment_id)
                 .build();
 
             let hash = self.env().xcm_send(
@@ -156,6 +177,42 @@ mod payment_processor {
 
 }
 
+#[cfg(test)]
+mod tests {
+    use ink::xcm::latest::{Asset, Junctions, Location};
+    use ink::xcm::prelude::{AccountId32, Parachain};
+    use super::*;
+    // #[ink::test]
+    // fn log_xcm_message() {
+    //     let fee_max = 10000000000;
+    //     let ah = Junctions::from([Parachain(1000)]);
+    //     let destination: Location = Location { parents: 1, interior: ah};
+    //     let asset: Asset = (Location::parent(), fee_max).into();
+    //     let sc_ah_address = env;
+    //     let sc_location: Location = AccountId32{network: None, id: sc_ah_address}.into();
+    // 
+    //     let transfer_approved = RuntimeCall::Assets(AssetsCall::TransferApproved{
+    //         id: ASSET_ID,
+    //         owner: MultiAddress::<AccountId, ()>::Id(self.env().caller()),
+    //         destination: MultiAddress::<AccountId, ()>::Id(AccountId::from(sc_ah_address)),
+    //         amount
+    //     });
+    //     let message: Xcm<()> = Xcm::builder()
+    //         .withdraw_asset(asset.clone().into())
+    //         .buy_execution(asset, Unlimited)
+    //         .set_topic(payment_id)
+    //         .transact(
+    //             OriginKind::SovereignAccount,
+    //             Weight::from_parts(ref_time, proof_size),
+    //             transfer_approved.encode().into(),
+    //         )
+    //         .refund_surplus()
+    //         .deposit_asset(Wild(WildAsset::All), sc_location)
+    //         .build();
+    //     
+    //     ink::env::debug_println!("log_xcm_message {:?}", message);
+    // }
+}
 
 #[cfg(all(test, feature = "e2e-tests"))]
 mod e2e_tests;
