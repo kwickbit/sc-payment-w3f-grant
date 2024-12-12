@@ -11,7 +11,7 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 sp-arithmetic = { version = "26.0.0", default-features = false } # Substrate arithmetic utilities
 sp-runtime = { version = "39.0.1", default-features = false }
 hex = { version = "0.4.3", default-features = false }
-frame-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
+#frame-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0" }
 
 
 

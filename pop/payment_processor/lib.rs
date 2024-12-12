@@ -2,7 +2,8 @@
 
 mod xcm;
 const ASSET_ID: u32 = 27;
-
+const REF_TIME: u64 = 1_000_000_000;
+const PROOF_SIZE: u64 = 100_000;
 
 #[ink::contract]
 mod payment_processor {
@@ -20,7 +21,8 @@ mod payment_processor {
         Blake2x256,
     };
     use scale::{Compact, Encode};
-    use crate::ASSET_ID;
+    use crate::{ASSET_ID, PROOF_SIZE, REF_TIME};
+    const FEE_MAX: Balance = 1;
 
     #[derive(Debug, PartialEq, Eq)]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
@@ -112,9 +114,7 @@ mod payment_processor {
             &mut self,
             amount: u128,
             payment_id: [u8; 32],
-            fee_max: u128,
-            ref_time: u64,
-            proof_size: u64
+            fee_max: Balance,
         ) -> Result<XcmHash, RuntimeError> {
             let ah = Junctions::from([Parachain(1000)]);
             let destination: Location = Location { parents: 1, interior: ah};
@@ -129,15 +129,23 @@ mod payment_processor {
                 amount
             });
 
+            let mut error_handler_instructions = Vec::new();
+            error_handler_instructions.push(RefundSurplus);
+            error_handler_instructions.push(DepositAsset {
+                assets: All.into(),
+                beneficiary: sc_location.clone(),
+            });
+
             let message: Xcm<()> = Xcm::builder()
                 .withdraw_asset(asset.clone().into())
                 .buy_execution(asset, Unlimited)
                 .set_topic(payment_id)
                 .transact(
                     OriginKind::SovereignAccount,
-                    Weight::from_parts(ref_time, proof_size),
+                    Weight::from_parts(REF_TIME, PROOF_SIZE),
                     transfer_approved.encode().into(),
                 )
+                // .set_error_handler(Xcm(error_handler_instructions))
                 .set_topic(payment_id)
                 .refund_surplus()
                 .set_topic(payment_id)
