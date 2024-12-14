@@ -4,7 +4,14 @@
 
 ## Overview
 
-This repository contains a benchmark of various smart contract solutions within the Polkadot ecosystem. It aims to evaluate the performance, flexibility, and features of different platforms within the Polkadot network, helping developers understand the advantages of each solution.
+This repository benchmarks various smart contract solutions in the Polkadot ecosystem for implementing a **non-custodial payment gateway**.
+The goal is to evaluate how different platforms can support a non-custodial payment system, where merchants can
+accept stablecoin payments from users securely without needing to have a custodial intermediary holding their funds.
+
+### Example Use Case
+A merchant integrates KwickBit's payment gateway to accept USDC payments. A customer pays in USDC, which is routed to the merchant through the system.
+
+The benchmark compares technical capabilities, user flows, and trade-offs across different Polkadot parachains to achieve this result efficiently and reliably.
 
 Our chosen platforms for this benchmark are:
 
