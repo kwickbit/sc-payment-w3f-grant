@@ -1,71 +1,167 @@
-# Payment Processor Smart Contract
+# Non-Custodial Payment Processor using Pop-Network
 
-This contract allows the execution of payments through the XCM protocol using encoded extrinsics, enabling cross-chain asset transfers via a Polkadot parachain (such as AssetHub). It supports managing and verifying payments, as well as executing transactions with a fixed fee.
+This smart contract is designed to act as a **non-custodial payment processor** in a multi-chain environment, leveraging the **Polkadot Asset Hub (Paseo)** and cross-consensus messaging (XCM).
 
-## Contract Overview
+### Overview
+The contract facilitates payments for users by interacting with the **Asset Hub** to process stablecoin transactions. It prevents double payments by tracking payment statuses and relies on an off-chain indexer to handle XCM result callbacks.
 
-The `PaymentProcessor` smart contract includes the following key features:
+---
 
-- **Cross-chain Transaction Support**: Utilizes XCM protocol to perform transactions between chains.
-- **Refund Mechanism**: Refunds excess payment if the specified fee exceeds the actual cost.
+## Payment Flow Explanation
 
-The main message method is `pay`, which requires the encoded extrinsic data to perform the transaction, along with fee and execution parameters.
+1. **User Approval**: The user pre-approves a transfer of the payment amount (e.g., USDC) to the contract's address on the Asset Hub.
+2. **Calling the Contract**: The user calls the `pay` method on this contract, providing the `payment_id` and amount.
+3. **XCM Message**: The contract sends an XCM message to the Asset Hub to initiate the payment.
+4. **Event Detection**: Off-chain indexers detect the XCM result and call back the contract with success or failure.
+5. **Fund Transfer**: In case of success, the program transfers the funds to the recipient.
 
-## Extrinsic Data Format
 
-The contract expects an encoded version of the following extrinsic for processing payments:
+---
 
-```
-TransferApproved {
-    asset_id: "<ASSET_HUB_ASSET_ID>",
-    owner: {
-        Id: "<DELEGATOR_ADDRESS>"
-    },
-    destination: {
-        Id: "<CONTRACT_ADDRESS_ON_ASSET_HUB>"
-    },
-    amount: <TRANSFER_AMOUNT>
-}
-```
+## Directories
 
-### How to Approve Transfers
+### `payment-processor`
+Contains the files defining the smart contract.
 
-To perform the approval, you can use [Polkadot.js](https://polkadot.js.org/apps/).
+### `pop-indexer`
+Contains the indexer project that monitors `MessageQueue.Processed` events.
 
-Steps:
-1. Access the Polkadot.js portal.
-2. Select the appropriate account (the delegator).
-3. Call the `approveTransfer` function on the destination contract with the desired amount and asset ID.
+---
 
-### Encoding the Extrinsic
+## Deployment and Testing Instructions
 
-After approving the transfer, you need to encode the extrinsic data that contains the transfer details in the format mentioned above. This encoded data will be passed to the smart contract when calling the `pay` function.
+### Deploying the Smart Contract
 
-## Deployment Instructions
+1. **Navigate to the `payment-processor` folder**:
+   ```bash
+   cd payment-processor
+   ```
 
-Follow these steps to compile, deploy, and interact with the contract:
+2. **Modify the Asset ID**:
+    - Update the variable `ASSET_ID` in the code with an asset ID you own on Asset Hub Paseo.
+    - You can create and mint your own asset using [polkadot.js.org](https://polkadot.js.org/) and set the corresponding asset ID in the code.
 
-### 1. Compile the Smart Contract
+3. **Build the Contract**:
+   ```bash
+   pop build
+   ```
+    - Follow installation instructions for the `pop` CLI if not already installed: [Installing Pop CLI](https://learn.onpop.io/cli/installing-pop-cli).
 
-```sh
-pop build
-```
+4. **Deploy the Contract**:
+    - Use [contracts.onpop.io](https://contracts.onpop.io/contract/) to deploy the contract.
 
-### 2. Upload and Deploy
+5. **Fund the Smart Contract**:
+    - Retrieve the contract's Asset Hub address from [contracts.onpop.io](https://contracts.onpop.io/contract/).
+    - Transfer funds to the contract's address on the Asset Hub: Use [polkadot.js.org](https://polkadot.js.org/) to make the transfer by clicking on `Transfer`.
 
-Go to [contracts.onpop.io](https://contracts.onpop.io) to upload and deploy the contract. Once deployed, note the contract's address on the destination chain.
+6. **Test the Payment Feature**:
+    - Navigate to [polkadot.js.org](https://polkadot.js.org/) and go to `Developer` -> `Extrinsics`.
+    - Use another address (different from the deployer) for testing the payment feature.
+    - Call the `pay` method with the following parameters:
+        - **amount**: The amount for the transfer.
+        - **payment_id**: A random 32-byte string in hex format.
 
-### 3. Interact with the Contract
+#### Troubleshoot
+**Required Tokens**:
+  - Ensure you have **PAS tokens** on the Pop network chain for the address calling the `pay` method.
+  - Use the [Polkadot Faucet](https://faucet.polkadot.io/) to claim PAS tokens for your Asset Hub or Paseo relay chain address.
+  - Transfer PAS tokens from the relay chain to the Pop chain using [onboard.popnetwork.xyz](https://onboard.popnetwork.xyz/).
 
-Using [contracts.onpop.io](https://contracts.onpop.io), you can interact with the contract's `pay` method, providing the required parameters.
+### Running the Indexer
 
-### Required Parameters for the `pay` Function
+1. **Navigate to the `pop-indexer` folder**:
+   ```bash
+   cd pop-indexer
+   ```
 
-- **feeMax**: `10000000000`
-- **refTime**: `10000000000`
-- **proofSize**: `100000`
-- **toRefund**: The contract's own address on AssetHub.
+2. **Create a `.env` file**:
+   Add the following variables:
+   ```
+   CONTRACT_ADDRESS=<CONTRACT_ADDRESS>
+   DB_PORT=5432
+   GATEWAY_URL=https://v2.archive.subsquid.io/network/asset-hub-paseo
+   RPC_ENDPOINT_URL=wss://asset-hub-paseo-rpc.dwellir.com
+   BLOCK_NUMBER_START=<RECENT_BLOCK_NUMBER>
+   ```
 
---- 
+3. **Run the Indexer**:
+   ```bash
+   docker-compose up --build
+   ```
 
-This README provides a summary of the payment processing smart contract, explains the extrinsic encoding process, and includes the steps required for deployment and interaction.
+---
+
+## Constants
+
+### General Constants
+- **`ASSET_ID`**: The ID of the asset on the Asset Hub. This contract uses asset ID `27` (e.g., USDC).
+- **`REF_TIME`**: Reference time parameter for XCM execution.
+- **`PROOF_SIZE`**: Proof size parameter for XCM execution.
+- **`FEE_MAX`**: Maximum fees the contract is willing to pay for XCM execution on the Asset Hub.
+
+### Payment Status
+- **`PAYMENT_FAILED`**: Payment processing failed (`3`).
+- **`PAYMENT_DONE`**: Payment successfully completed (`1`).
+- **`PAYMENT_ONGOING`**: Payment is in progress (`2`).
+- **`PAYMENT_NO_STATUS`**: No payment associated with the given `payment_id` (`0`).
+
+---
+
+## Contract Components
+
+### Storage
+1. **`payments`**: Tracks the status of payments using a `Mapping` of `payment_id` (key) to `status` (value).
+2. **`owner`**: Stores the account that deployed the contract (the contract owner).
+
+### Error Types
+`RuntimeError` captures potential runtime issues, particularly around XCM execution:
+- **`XcmExecuteFailed`**: XCM execution failed.
+- **`XcmSendFailed`**: XCM message transmission failed.
+
+---
+
+## Key Methods
+
+### Constructor
+**`new()`**
+- Initializes the contract storage.
+- Sets the `owner` as the caller of the constructor.
+
+### Payment Flow
+
+#### `pay(amount: u128, payment_id: [u8; 32])`
+Processes a payment:
+1. Checks if the `payment_id` already exists with an ongoing or completed status.
+2. Sends an XCM message to the Asset Hub to execute a `TransferApproved` transaction.
+3. Sets the payment status to `PAYMENT_ONGOING`.
+4. Returns the hash of the XCM message sent.
+
+#### `callback_success(payment_id: Vec<u8>)`
+Marks a payment as successfully completed:
+- Checks that the caller is the contract owner.
+- Updates the `payments` mapping with `PAYMENT_DONE`.
+
+#### `callback_fail(payment_id: Vec<u8>)`
+Marks a payment as failed:
+- Checks that the caller is the contract owner.
+- Updates the `payments` mapping with `PAYMENT_FAILED`.
+
+#### `get(payment_id: Vec<u8>) -> u8`
+Retrieves the current status of a payment by its `payment_id`. Returns:
+- **`PAYMENT_FAILED`**, **`PAYMENT_DONE`**, **`PAYMENT_ONGOING`**, or **`PAYMENT_NO_STATUS`**.
+
+### Utilities
+
+#### `convert_to_hash(family: &str, para_id: u32, account_id: AccountId) -> [u8; 32]`
+Generates a 256-bit hash based on the provided parachain and account information. This is used to identify the contract address on the sibling chain.
+
+#### `get_ah_address() -> [u8; 32]`
+Returns the hashed address of the contract on the sibling Asset Hub parachain.
+
+---
+
+### Known Limitations
+
+- **Async Nature of XCM**: The contract cannot directly determine the success of the XCM transaction. This is handled by the off-chain indexer.
+- **Indexer Dependency**: An off-chain indexer is required to process XCM events and trigger the callback methods.
+
