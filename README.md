@@ -95,18 +95,19 @@ By highlighting the differences between Wasm and EVM compatibility, this benchma
 
 ### Moonbeam
 
-- Transferring from Relay Chain To Moonbase: TBD
-- Transferring from Moonbase to Relay Chain: TBD
+- Transferring from Relay Chain To Moonbase: ~3-4s
+- Transferring from Moonbase to Relay Chain: ~3-5s
 - Approving XC-20 Transfer: ~25s
 - Submitting Payment: ~25s
 - Indexer: ~1-3s
 
 ### Pop Network
 
-- Cross-chain Transfer with XCM: TBD
-- Submitting Payment: TBD
-- Indexer: TBD
-- Callback Success Execution: TBD
+- Transferring from Relay Chain To Pop: ~14s
+- Submitting Payment Pop Smart To Event emitted on Asset Hub: 24~28s
+- Event emitted on Asset Hub, Indexer detection time: ~30-35s
+- Callback Success Execution: ~5s
+
 
 ## Why These Platforms?
 
@@ -125,31 +126,6 @@ We chose Pop Network for the Wasm part for several reasons:
 - **Developer-Friendly Tools**: Offers intuitive and robust web tools for Wasm smart contract development.
 - **Cross-Chain Communication**: Seamless support for XCM makes it ideal for applications requiring inter-parachain interactions.
 
-## Benchmarks
-
-### Moonbeam 
-
-- Transferring from Relay Chain To Moonbase: TBD
-
-- Transferring from Moonbase to Relay Chain: TBD
-
-- Approving XC-20 Transfer: ~25s
-
-- Submitting Payment: ~25s
-
-- Indexer: ~1-3s
-
-### Pop
-
-- Transferring from Relay Chain To Pop: TBD
-
-- Transferring from Pop to Relay Chain: TBD
-
-- Approving Transfer: TBD
-
-- Submitting Payment: TBD
-
-- Indexer: TBD
 
 
 ## Contributing

@@ -49,7 +49,7 @@ async function transferFromRelayToMoonbeam({
                                                destPrivateKey = process.env.PRIVATE_KEY as string,
                                                amount = '20000000000',
                                                destinationParaId = 1000,
-                                               foreignAsset: "32259045809535163221576417993425387648",
+                                               foreignAsset = "32259045809535163221576417993425387648",
                                                network = 'testnet',
                                            }: {
     senderMnemonic: string;
@@ -70,7 +70,7 @@ async function transferFromRelayToMoonbeam({
     }
 
     // Initialize the Polkadot.js API for the given network
-    const relayProvider = new WsProvider('wss://fro-moon-rpc-1-moonbase-relay-rpc-1.moonbase.ol-infra.network');
+    const relayProvider = new WsProvider('wss://relay.api.moonbase.moonbeam.network');
     const relayApi = await ApiPromise.create({ provider: relayProvider });
 
     // Create a keyring and load your account
@@ -144,6 +144,7 @@ async function transferFromRelayToMoonbeam({
     const transfer = relayApi.tx.xcmPallet.transferAssetsUsingTypeAndThen(
         destination, assets, assetsTransferType, remoteFeesId, feesTransferType, customXCMOnDest, destWeightLimit
     );
+
     // Sign and send the transaction
     const unsub = await transfer.signAndSend(accountSender, (result) => {
         if (result.status.isInBlock) {
