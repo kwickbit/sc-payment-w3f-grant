@@ -19,7 +19,7 @@ const query = gql`
 
 // Set to keep track of the latest event IDs to avoid duplicates
 let processedEvents = new Set<string>();
-
+const startedDate = new Date()
 // Function to fetch and process events
 const fetchEvents = async () => {
   try {
@@ -30,13 +30,15 @@ const fetchEvents = async () => {
       events.forEach((event: any) => {
         // Check if the event has already been processed
         if (!processedEvents.has(event.id)) {
-          console.log('New Payment Received:');
-          console.log(`Payment ID: ${event.paymentId}`);
-          console.log(`From: ${event.from}`);
-          console.log(`Amount: ${event.amount}`);
-          console.log(`Merchant: ${event.merchant}`);
-          console.log(`Royalty Amount: ${event.royaltyAmount}`);
-          console.log('---------------------------');
+
+          console.log(event)
+          // console.log('New Payment Received:');
+          // console.log(`Payment ID: ${event.paymentId}`);
+          // console.log(`From: ${event.from}`);
+          // console.log(`Amount: ${event.amount}`);
+          // console.log(`Merchant: ${event.merchant}`);
+          // console.log(`Royalty Amount: ${event.royaltyAmount}`);
+          // console.log('---------------------------');
 
           // Mark the event as processed
           processedEvents.add(event.id);
