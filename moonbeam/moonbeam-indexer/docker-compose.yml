@@ -3,10 +3,40 @@ version: "3"
 services:
   db:
     image: postgres:15
+    container_name: squid_db_container
     environment:
-      POSTGRES_DB: squid
-      POSTGRES_PASSWORD: postgres
+      - POSTGRES_DB=squid
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
       - "${DB_PORT}:5432"
       # command: ["postgres", "-c", "log_statement=all"]
     shm_size: 1gb
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  squid:
+    build:
+      context: .
+    container_name: squid_processor_container
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - RPC_ETH_HTTP=${RPC_ETH_HTTP}
+      - BLOCK_NUMBER_START=${BLOCK_NUMBER_START}
+      - GQL_PORT=4350
+      - DB_CONNECTION=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=squid
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3  # Retry up to 3 times on failure
+    ports:
+      - "4350:4350"  # Expose port 4350
