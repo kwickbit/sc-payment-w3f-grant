@@ -9,6 +9,7 @@ The goal is to evaluate how different platforms can support a non-custodial paym
 accept stablecoin payments from users securely without needing to have a custodial intermediary holding their funds.
 
 ### Example Use Case
+
 A merchant integrates KwickBit's payment gateway to accept USDC payments. A customer pays in USDC, which is routed to the merchant through the system.
 
 The benchmark compares technical capabilities, user flows, and trade-offs across different Polkadot parachains to achieve this result efficiently and reliably.
@@ -61,32 +62,36 @@ By highlighting the differences between Wasm and EVM compatibility, this benchma
 ## User Flow
 
 ### Using Moonbeam
+
 1. **Teleport USDC to Moonbeam**:
-    - The user first teleports USDC from Asset Hub to Moonbeam, converting it into xUSDC.
-    - This step is necessary as the smart contract operates on Moonbeam and requires xUSDC.
+   - The user first teleports USDC from Asset Hub to Moonbeam, converting it into xUSDC.
+   - This step is necessary as the smart contract operates on Moonbeam and requires xUSDC.
 2. **Call the Smart Contract**:
-    - The user interacts with the smart contract deployed on Moonbeam.
-    - The call requires the user to have some Moonbeam tokens (e.g., GLMR) to cover the gas fees.
+   - The user interacts with the smart contract deployed on Moonbeam.
+   - The call requires the user to have some Moonbeam tokens (e.g., GLMR) to cover the gas fees.
 3. **Result**:
-    - If the contract call succeeds, the payment is processed.
-    - If the contract call fails, the user is left with xUSDC on Moonbeam, requiring a separate teleport to convert it back to Asset Hub USDC.
+   - If the contract call succeeds, the payment is processed.
+   - If the contract call fails, the user is left with xUSDC on Moonbeam, requiring a separate teleport to convert it back to Asset Hub USDC.
 
 **Drawbacks of Moonbeam Approach:**
+
 - **Non-Atomic Workflow**: Teleporting USDC and calling the smart contract cannot be done in a single batch. If the contract call fails, the user ends up with xUSDC without explicitly requesting it.
 - **Requires Moonbeam Tokens**: The user must have Moonbeam tokens (GLMR) to pay for gas fees, adding an extra step for onboarding.
 
 ### Using Pop Network
+
 1. **Transfer PAS to Pop Network**:
-    - The user teleports PAS tokens from the relay chain to the Pop network.
-    - These tokens are required to pay gas fees for interacting with the smart contract on Pop.
+   - The user teleports PAS tokens from the relay chain to the Pop network.
+   - These tokens are required to pay gas fees for interacting with the smart contract on Pop.
 2. **Call the Smart Contract**:
-    - The user calls the `pay` method on the smart contract, providing the required parameters (e.g., amount and payment ID).
+   - The user calls the `pay` method on the smart contract, providing the required parameters (e.g., amount and payment ID).
 3. **Off-Chain Indexer Processing**:
-    - The off-chain indexer listens for the event emitted by the Pop network and triggers either a `callback_success` or `callback_fail` method.
+   - The off-chain indexer listens for the event emitted by the Pop network and triggers either a `callback_success` or `callback_fail` method.
 4. **Finalization**:
-    - The result of the payment is finalized through the callback method. This process involves an additional on-chain call, which incurs gas fees.
+   - The result of the payment is finalized through the callback method. This process involves an additional on-chain call, which incurs gas fees.
 
 **Drawbacks of Pop Network Approach:**
+
 - **Requires PAS Tokens**: The user must acquire and transfer PAS tokens to the Pop network for gas fees.
 - **Longer Process**: The payment process involves an additional off-chain step and a subsequent on-chain callback, leading to longer overall transaction times.
 - **Self-Paid Gas Fees for Callbacks**: The platform (not the user) pays the gas fees for the callback methods, increasing operational costs.
@@ -108,10 +113,10 @@ By highlighting the differences between Wasm and EVM compatibility, this benchma
 - Event emitted on Asset Hub, Indexer detection time: ~30-35s
 - Callback Success Execution: ~5s
 
-
 ## Why These Platforms?
 
 ### Moonbeam
+
 We chose Moonbeam for the EVM part for several reasons:
 
 - One of the most mature and well-established parachains within the Polkadot ecosystem.
@@ -119,14 +124,13 @@ We chose Moonbeam for the EVM part for several reasons:
 - Easy smart contract development with Ethereum-compatible tools and frameworks.
 
 ### Pop Network
+
 We chose Pop Network for the Wasm part for several reasons:
 
 - **Active Developer Community**: A highly engaged community ensures continuous improvements and support.
 - **Tutorials for Advanced Use Cases**: Pop Network provides comprehensive guides for implementing advanced features like cross-chain smart contract communication via XCM.
 - **Developer-Friendly Tools**: Offers intuitive and robust web tools for Wasm smart contract development.
 - **Cross-Chain Communication**: Seamless support for XCM makes it ideal for applications requiring inter-parachain interactions.
-
-
 
 ## Contributing
 

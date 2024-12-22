@@ -19,11 +19,12 @@ export const processor = new EvmBatchProcessor()
     .setRpcEndpoint({
         // Set the URL via .env for local runs or via secrets when deploying to Subsquid Cloud
         // https://docs.subsquid.io/deploy-squid/env-variables/
-        url: assertNotNull(process.env.RPC_ETH_HTTP, 'No RPC endpoint supplied'),
+        url: assertNotNull("https://moonbeam-alpha.api.onfinality.io/public", 'No RPC endpoint supplied'),
         // More RPC connection options at https://docs.subsquid.io/evm-indexing/configuration/initialization/#set-data-source
         rateLimit: 10
     })
     .setFinalityConfirmation(75)
+    
     .setFields({
         transaction: {
             from: true,
@@ -32,7 +33,7 @@ export const processor = new EvmBatchProcessor()
         },
     })
     .setBlockRange({
-        from: 0,
+        from: Number(process.env.BLOCK_NUMBER_START ?? 8994903)
     })
     .addLog({
         address: [PAYMENT_PROCESSOR_ADDRESS],
