@@ -1,39 +1,64 @@
-import { createClient } from 'graphql-ws';
-import WebSocket from 'ws'; // Import the WebSocket polyfill
-const wsEndpoint = process.env.WS_ENDPOINT ?? 'ws://0b342a1b-0dbc-421a-afd4-cf9a847a479b.squids.live/kb-payment-sqd/v/v1/graphql'; // Change this to your actual Subsquid GraphQL endpoint
-``
-const client = createClient({
-  webSocketImpl: WebSocket,
-  url: wsEndpoint,
-});
+import { request, gql } from 'graphql-request';
 
-client.subscribe(
+const endpoint = 'http://localhost:4350/graphql'; // Change this to your actual Subsquid GraphQL endpoint
+
+// Define the GraphQL query to fetch ERC20PaymentReceived events
+const query = gql`
   {
-    query: `
-    subscription {
-        erc20PaymentReceiveds(limit: 1, orderBy: timestamp_DESC) {
-          id
-          token
-          from
-          amount
-          paymentId
-          merchant
-          royaltyAmount
-          timestamp
-      }
-    }  
-    `,
-  },
-  {
-    next: (data) => {
-      console.log(`New transfers: ${JSON.stringify(data)}\n`);
-    },
-    error: (error) => {
-      console.error('error', error);
-    },
-    complete: () => {
-      console.log('done!');
-    },
+    erc20PaymentReceiveds(orderBy: id_DESC, limit: 10) {
+      id
+      token
+      from
+      amount
+      paymentId
+      merchant
+      royaltyAmount
+      timestamp
+    }
   }
-);
+`;
 
+// Set to keep track of the latest event IDs to avoid duplicates
+let processedEvents = new Set<string>();
+const now = new Date()
+// Function to fetch and process events
+const fetchEvents = async () => {
+  try {
+    const data = (await request(endpoint, query) as any);
+
+    const events = data.erc20PaymentReceiveds;
+    if (events && events.length) {
+      events.forEach((event: any) => {
+        // Check if the event has already been processed
+        if (!processedEvents.has(event.id)) {
+          if ((new Date(event.timestamp)).getTime() > now.getTime()) {
+            console.log('New Payment Received:');
+            console.log(`Payment ID: ${event.paymentId}`);
+            console.log(`From: ${event.from}`);
+            console.log(`Amount: ${event.amount}`);
+            console.log(`Merchant: ${event.merchant}`);
+            console.log(`Royalty Amount: ${event.royaltyAmount}`);
+            console.log('---------------------------');
+
+          }
+
+          // Mark the event as processed
+          processedEvents.add(event.id);
+        }
+      });
+    }
+    else {
+        console.log('No new events')
+    }
+  } catch (error) {
+    console.error('Error fetching events:', error);
+  }
+};
+
+// Poll the API every 3 seconds
+const pollInterval = 3000; // 3 seconds
+
+setInterval(fetchEvents, pollInterval);
+
+// Initial fetch
+fetchEvents();
