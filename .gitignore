@@ -53,3 +53,5 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
+
+*.DS_Store
